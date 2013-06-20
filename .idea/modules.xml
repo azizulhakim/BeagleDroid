@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/BeagleDroid/BeagleDroid.iml" filepath="$PROJECT_DIR$/BeagleDroid/BeagleDroid.iml" />
+      <module fileurl="file://$PROJECT_DIR$/BeagleDroidProject.iml" filepath="$PROJECT_DIR$/BeagleDroidProject.iml" />
+    </modules>
+  </component>
+</project>
+
