@@ -18,13 +18,15 @@ package com.vvu.beagledroid;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
 
 public class MainActivity extends Activity {
+	static final String TAG = "MainActivity";
 
-    @Override
+	@Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -32,8 +34,17 @@ public class MainActivity extends Activity {
 		myMagic.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
-				UsbConnection myConn = new UsbConnection(MainActivity.this, 0x0451, 0x6141);
-				myConn.init();
+				/*UsbConnection myConn = new UsbConnection(MainActivity.this, 0x0451, 0x6141);
+				myConn.init();*/
+				HexDump util = new HexDump();
+				byte[] dst_mac = new byte[]{(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,};
+				byte[] src_mac = new byte[]{(byte) 0x01, (byte) 0x02, (byte) 0x03, (byte) 0x04, (byte) 0x05, (byte) 0x06,};
+				short h_proto = 0x0800;
+				Ether2 eth = new Ether2(dst_mac, src_mac, h_proto);
+				Log.d(TAG, eth.toString());
+				Log.d(TAG, util.dumpHexString(eth.getH_dest()));
+				Log.d(TAG, util.dumpHexString(eth.getH_source()));
+				Log.d(TAG, "" + eth.getH_proto());
 			}
 		});
 	}
