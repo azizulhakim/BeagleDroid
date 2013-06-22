@@ -16,6 +16,7 @@
 
 package com.vvu.beagledroid;
 
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 /**
@@ -63,5 +64,16 @@ public class Ether2 {
 				", h_source=" + Arrays.toString(h_source) +
 				", h_proto=" + h_proto +
 				'}';
+	}
+
+	public byte[] getByteArray() {
+		byte[] buffer = new byte[6 + 6 + 16];
+		ByteBuffer target = ByteBuffer.wrap(buffer);
+
+		target.put(h_dest);
+		target.put(h_source);
+		target.putShort(h_proto);
+
+		return target.array();
 	}
 }

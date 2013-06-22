@@ -16,6 +16,8 @@
 
 package com.vvu.beagledroid;
 
+import java.nio.ByteBuffer;
+
 /**
  * Created by vvu on 6/21/13.
  */
@@ -68,5 +70,24 @@ public class RNDIS {
 				", data_offset=" + data_offset +
 				", data_len=" + data_len +
 				'}';
+	}
+
+	public byte[] getByteArray() {
+		byte[] buffer = new byte[44];
+		ByteBuffer result = ByteBuffer.wrap(buffer);
+
+		result.putInt(msg_type);
+		result.putInt(msg_len);
+		result.putInt(data_offset);
+		result.putInt(data_len);
+		result.putInt(band_offset);
+		result.putInt(band_len);
+		result.putInt(out_band_elements);
+		result.putInt(packet_offset);
+		result.putInt(packet_info_len);
+		result.putInt(reserved_first);
+		result.putInt(reserved_second);
+
+		return result.array();
 	}
 }

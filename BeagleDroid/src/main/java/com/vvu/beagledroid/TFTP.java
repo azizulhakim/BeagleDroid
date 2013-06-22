@@ -16,6 +16,8 @@
 
 package com.vvu.beagledroid;
 
+import java.nio.ByteBuffer;
+
 /**
  * Created by vvu on 6/22/13.
  */
@@ -51,5 +53,15 @@ public class TFTP {
 				"op_code=" + op_code +
 				", blk_numer=" + blk_numer +
 				'}';
+	}
+
+	public byte[] getByteArray() {
+		byte[] buffer = new byte[4];
+		ByteBuffer result = ByteBuffer.wrap(buffer);
+
+		result.putShort(op_code);
+		result.putShort(blk_numer);
+
+		return result.array();
 	}
 }

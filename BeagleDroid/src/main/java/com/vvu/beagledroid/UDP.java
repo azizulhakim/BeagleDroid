@@ -72,4 +72,16 @@ public class UDP {
 		return ByteBuffer.allocate(2).putShort(value)
 				.order(ByteOrder.nativeOrder()).getShort(0);
 	}
+
+	public byte[] getByteArray() {
+		byte[] buffer = new byte[8];
+		ByteBuffer result = ByteBuffer.wrap(buffer);
+
+		result.putShort(src_port);
+		result.putShort(dst_port);
+		result.putShort(len);
+		result.putShort(check_sum);
+
+		return result.array();
+	}
 }

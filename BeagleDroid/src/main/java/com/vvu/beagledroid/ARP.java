@@ -85,4 +85,21 @@ public class ARP {
 		return ByteBuffer.allocate(2).putShort(value)
 				.order(ByteOrder.nativeOrder()).getShort(0);
 	}
+
+	public byte[] getByteArray() {
+		byte[] buffer = new byte[28];
+		ByteBuffer result = ByteBuffer.wrap(buffer);
+
+		result.putShort(hw_type);
+		result.putShort(proto_type);
+		result.put(hw_len);
+		result.put(proto_len);
+		result.putShort(op_code);
+		result.put(hw_source);
+		result.put(ip_source);
+		result.put(hw_dest);
+		result.put(ip_dest);
+
+		return result.array();
+	}
 }
