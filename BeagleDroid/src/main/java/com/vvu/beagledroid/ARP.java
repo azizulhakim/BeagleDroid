@@ -18,6 +18,7 @@ package com.vvu.beagledroid;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.Arrays;
 
 /**
  * Created by vvu on 6/22/13.
@@ -79,6 +80,21 @@ public class ARP {
 
 	public void setIp_dest(byte[] ip_dest) {
 		this.ip_dest = ip_dest;
+	}
+
+	@Override
+	public String toString() {
+		return "ARP{" +
+				"hw_type=" + hw_type +
+				", proto_type=" + proto_type +
+				", hw_len=" + hw_len +
+				", proto_len=" + proto_len +
+				", op_code=" + op_code +
+				", hw_source=" + Arrays.toString(hw_source) +
+				", ip_source=" + Arrays.toString(ip_source) +
+				", hw_dest=" + Arrays.toString(hw_dest) +
+				", ip_dest=" + Arrays.toString(ip_dest) +
+				'}';
 	}
 
 	private short htons(short value) {

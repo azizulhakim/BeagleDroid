@@ -17,11 +17,19 @@
 package com.vvu.beagledroid;
 
 import android.app.Activity;
+import android.hardware.usb.UsbDevice;
+import android.hardware.usb.UsbDeviceConnection;
+import android.hardware.usb.UsbEndpoint;
+import android.hardware.usb.UsbInterface;
+import android.hardware.usb.UsbManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
+
+import java.util.HashMap;
+import java.util.Iterator;
 
 public class MainActivity extends Activity {
 	static final String TAG = "MainActivity";
@@ -34,17 +42,33 @@ public class MainActivity extends Activity {
 		myMagic.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
-				/*UsbConnection myConn = new UsbConnection(MainActivity.this, 0x0451, 0x6141);
-				myConn.init();*/
+				UsbDevice myDev = null;
+				UsbManager manager = (UsbManager) getSystemService(MainActivity.this.USB_SERVICE);
+				HashMap<String, UsbDevice> deviceList = manager.getDeviceList();
+				Iterator<UsbDevice> deviceIterator = deviceList.values().iterator();
+				while (deviceIterator.hasNext()) {
+					UsbDevice dev = deviceIterator.next();
+					if (dev.getProductId() == 24897 && dev.getVendorId() == 1105)
+						myDev = dev;
+				}
+				UsbInterface intf = myDev.getInterface(1);
+				UsbEndpoint endpoint = intf.getEndpoint(0);
+				UsbDeviceConnection connection = manager.openDevice(myDev);
+				connection.claimInterface(intf, true);
+
+				byte[] buffer = new byte[500];
+				int tmp = connection.bulkTransfer(endpoint, buffer, 500, 0);
+				Log.d(TAG, "Received " + tmp + ".");
+				HexDump myDumper = new HexDump();
+				Log.d(TAG, myDumper.dumpHexString(buffer));
+
 				HexDump util = new HexDump();
 				byte[] dst_mac = new byte[]{(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,};
 				byte[] src_mac = new byte[]{(byte) 0x01, (byte) 0x02, (byte) 0x03, (byte) 0x04, (byte) 0x05, (byte) 0x06,};
 				short h_proto = 0x0800;
 				Ether2 eth = new Ether2(dst_mac, src_mac, h_proto);
-				Log.d(TAG, eth.toString());
-				Log.d(TAG, util.dumpHexString(eth.getH_dest()));
-				Log.d(TAG, util.dumpHexString(eth.getH_source()));
-				Log.d(TAG, "" + eth.getH_proto());
+				Log.d(TAG, util.dumpHexString(eth.getByteArray()));
+				Log.d(TAG, eth.getByteArray().length + "");
 			}
 		});
 	}

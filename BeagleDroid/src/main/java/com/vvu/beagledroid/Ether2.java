@@ -67,7 +67,7 @@ public class Ether2 {
 	}
 
 	public byte[] getByteArray() {
-		byte[] buffer = new byte[6 + 6 + 16];
+		byte[] buffer = new byte[6 + 6 + 2];
 		ByteBuffer target = ByteBuffer.wrap(buffer);
 
 		target.put(h_dest);
