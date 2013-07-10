@@ -6,8 +6,6 @@
     <string name="hello_world">Hello world!</string>
     <string name="rom">doROM()</string>
     <string name="uboot">doUBoot()</string>
-    <string name="kernel">kernel</string>
-    <string name="initramfs">initramfs</string>
-    <string name="dts">dts</string>
+    <string name="FIT">FIT</string>
 
 </resources>
