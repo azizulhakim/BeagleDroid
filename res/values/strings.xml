@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">BeagleDroid</string>
+    <string name="action_settings">Settings</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="rom">doROM()</string>
+    <string name="uboot">doUBoot()</string>
+    <string name="kernel">kernel</string>
+    <string name="initramfs">initramfs</string>
+    <string name="dts">dts</string>
+
+</resources>
