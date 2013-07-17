@@ -22,4 +22,7 @@
     <usb-device
             vendor-id="1317"
             product-id="42146"/>
+    <usb-device
+        	product-id = "42151"
+        	vendor-id = "1317"/>
 </resources>
