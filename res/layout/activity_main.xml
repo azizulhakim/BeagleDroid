@@ -7,7 +7,7 @@
     tools:context=".MainActivity" >
 
     <RelativeLayout
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="match_parent" >
 
         <Button
@@ -15,45 +15,36 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
-            android:layout_alignParentTop="true"
-            android:layout_marginLeft="24dp"
-            android:layout_marginTop="19dp"
-            android:text="IntMemory" />
-
-        <Button
-            android:id="@+id/button2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignLeft="@+id/button1"
-            android:layout_below="@+id/button1"
-            android:layout_marginTop="29dp"
-            android:text="AngstromWeb" />
-
-        <TextView
-            android:id="@+id/textView1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/button1"
-            android:layout_marginLeft="51dp"
-            android:layout_toRightOf="@+id/button2"
-            android:text="Sent to board: 0%" />
+            android:layout_below="@+id/spinner1"
+            android:layout_marginLeft="16dp"
+            android:layout_marginTop="35dp"
+            android:text="Flash" />
 
         <Spinner
             android:id="@+id/spinner1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignLeft="@+id/button2"
-            android:layout_below="@+id/button2"
-            android:layout_marginTop="62dp"
-            android:layout_toLeftOf="@+id/button3" />
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true" />
 
         <Button
             android:id="@+id/button3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignLeft="@+id/textView1"
-            android:layout_alignTop="@+id/spinner1"
-            android:text="rPI Dwld" />
+            android:layout_alignBaseline="@+id/button1"
+            android:layout_alignBottom="@+id/button1"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="31dp"
+            android:text="Download image" />
+
+        <CheckBox
+            android:id="@+id/checkBox1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@+id/button3"
+            android:layout_below="@+id/button1"
+            android:layout_marginLeft="29dp"
+            android:text="MakeSD" />
 
     </RelativeLayout>
 
