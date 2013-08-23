@@ -18,7 +18,7 @@
             android:layout_below="@+id/spinner1"
             android:layout_marginLeft="16dp"
             android:layout_marginTop="35dp"
-            android:text="Flash" />
+            android:text="@string/flashButton" />
 
         <Spinner
             android:id="@+id/spinner1"
@@ -35,7 +35,7 @@
             android:layout_alignBottom="@+id/button1"
             android:layout_alignParentRight="true"
             android:layout_marginRight="31dp"
-            android:text="Download image" />
+            android:text="@string/downloadButton" />
 
         <CheckBox
             android:id="@+id/checkBox1"
@@ -44,8 +44,7 @@
             android:layout_alignLeft="@+id/button3"
             android:layout_below="@+id/button1"
             android:layout_marginLeft="29dp"
-            android:text="MakeSD" />
-
+            android:text="@string/makeSD" />
     </RelativeLayout>
 
 </LinearLayout>

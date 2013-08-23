@@ -3,5 +3,8 @@
 
     <string name="app_name">BeagleDroid</string>
     <string name="action_settings">Settings</string>
+    <string name="flashButton">Flash</string>
+    <string name="downloadButton">Download Image</string>
+    <string name="makeSD">Make SD Card</string>
 
 </resources>
