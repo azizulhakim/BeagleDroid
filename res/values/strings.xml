@@ -6,5 +6,6 @@
     <string name="flashButton">Flash</string>
     <string name="downloadButton">Download Image</string>
     <string name="makeSD">Make SD Card</string>
+    <string name="localStorage">Open File</string>
 
 </resources>
