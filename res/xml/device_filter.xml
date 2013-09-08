@@ -16,12 +16,19 @@
   -->
 
 <resources>
+    <!-- AM335x ROM -->
     <usb-device
             vendor-id="1105"
             product-id="24897"/>
+    <!-- MLO -->
     <usb-device
             vendor-id="1317"
             product-id="42146"/>
+    <!-- U-Boot -->
+    <usb-device
+            vendor-id="1317"
+            product-id="42149"/>
+    <!-- Linux Kernel g_serial -->
     <usb-device
         	product-id = "42151"
         	vendor-id = "1317"/>
