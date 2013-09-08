@@ -45,6 +45,17 @@
             android:layout_below="@+id/button1"
             android:layout_marginLeft="29dp"
             android:text="@string/makeSD" />
+
+        <ProgressBar
+            android:id="@+id/progressBar1"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@+id/button1"
+            android:layout_alignRight="@+id/button3"
+            android:layout_below="@+id/checkBox1"
+            android:layout_marginTop="44dp" />
+
     </RelativeLayout>
 
 </LinearLayout>
