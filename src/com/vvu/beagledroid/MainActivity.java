@@ -34,8 +34,10 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.app.DownloadManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -55,16 +57,20 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.SystemClock;
+import android.text.format.Time;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.Toast;
+import ar.com.daidalos.afiledialog.FileChooserDialog;
 
 
 public class MainActivity extends Activity {
@@ -101,79 +107,20 @@ public class MainActivity extends Activity {
         
         Button flasher = (Button) findViewById(R.id.button1);
         Button downloader = (Button) findViewById(R.id.button3);
+        Spinner spinner1 = (Spinner) findViewById(R.id.spinner1);
     	
-        final Spinner spinner1 = (Spinner) findViewById(R.id.spinner1);
-    	spinner1.setAdapter(setupSpinner());
-
-        checkRunningDownloads();
+        flasher.setOnClickListener(flashListener);
+        spinner1.setAdapter(setupSpinner());
+    	spinner1.setOnItemSelectedListener(spinnerListener);
+        
+    	checkRunningDownloads();
         setupDir();
         
-    	flasher.setOnClickListener(new OnClickListener() {
-			public void onClick(View v) {
-				new Thread(new Runnable() {
-					public void run() {
-						if (checkImage() == false) return;
-						UsbManager manager = (UsbManager) getSystemService(Context.USB_SERVICE);
-						
-						UsbDevice myDev = checkUsbDevice(1105, 24897, "Please connect the BeagleBone Black in USB boot mode!", manager);
-						if (myDev == null) {
-							Log.d(TAG, "AM335x not in USB Boot mode!");
-							return;
-						}
-						while (!manager.hasPermission(myDev)){}
-						
-						runRom(myDev);
-						showToast("MLO started!");
-						
-						myDev = checkUsbDevice(1317, 42146, "U-Boot SPL did not started correctly!", manager);
-						if (myDev == null) {
-							Log.d(TAG, "MLO error!");
-							return;
-						}
-						while (!manager.hasPermission(myDev)){}
-						
-						runUBoot(myDev);
-						showToast("U-Boot started");
-						myDev = checkUsbDevice(1317, 42149, "U-Boot did not started corectly!", manager);
-						if(myDev == null) {
-							Log.d(TAG, "U-boot error");
-							return ;
-						}
-						runFIT(myDev);
-						
-						showToast("Booting kernel!");
-						myDev = checkUsbDevice(1317, 42151, "The kenernel did not started corectly!", manager);
-						if(myDev == null) {
-							Log.d(TAG, "Kernel error");
-							return ;
-						}
-						while (!manager.hasPermission(myDev)){}
-						
-						showToast("Starting to send image to the board!");
-						SystemClock.sleep(1500);
-						
-						runWrite(downloadedFile, myDev);
-					}
-				}).start();
-			}
-		});
-        downloader.setOnClickListener(new OnClickListener() {		
-			public void onClick(View v) {
-				new Thread(new Runnable() {
-					public void run() {
-						try {
-							downloadImage(spinner1.getSelectedItem().toString());
-						} catch (Exception e) {
-							e.printStackTrace();
-						}
-					}
-				}).start();
-			}
-		});
-        IntentFilter downloadIntent
-        = new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE);
-       registerReceiver(downloadReceiver, downloadIntent);
-	}
+        downloader.setOnClickListener(downloadListener);
+        
+        IntentFilter downloadIntent = new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE);
+        registerReceiver(downloadReceiver, downloadIntent);
+       }
 
 	@Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -182,14 +129,13 @@ public class MainActivity extends Activity {
     }
 	
 	@Override
-    protected void onDestroy()
-    {
+    protected void onDestroy() {
         super.onDestroy();
     	DownloadManager manager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
     	manager.remove(downloadID);
     	Log.d(TAG, "Destroy");
     }
-    
+	
 	/**
 	 * Sets up the working folder for the app /sdcard/BBB
 	 */
@@ -640,14 +586,14 @@ public class MainActivity extends Activity {
 					"NOOBS_v1_2", "rPI", "NOOBS_v1_2_1.zip");
 			downloadedFile = "NOOBS_v1_2_1.zip";
 			}
-		else if (item.equals("rPI-Raspbian ÒwheezyÓ")) {
-			Log.d(TAG, "Raspbian ÒwheezyÓ");
+		else if (item.equals("rPI-Raspbian 'wheezy'")) {
+			Log.d(TAG, "Raspbian 'wheezy'");
 			downloadID = downloadFile("http://raspberry.mythic-beasts.com/raspberry/images/raspbian/2013-07-26-wheezy-raspbian/2013-07-26-wheezy-raspbian.zip", 
 					item, "rPI", "2013-07-26-wheezy-raspbian.zip");
 			downloadedFile = "2013-07-26-wheezy-raspbian.zip";
 			}
-		else if (item.equals("rPI-Soft-float Debian ÒwheezyÓ")) {
-			Log.d(TAG, "Soft-float Debian ÒwheezyÓ");
+		else if (item.equals("rPI-Soft-float Debian 'wheezy'")) {
+			Log.d(TAG, "Soft-float Debian 'wheezy'");
 			downloadID = downloadFile("http://raspberry.mythic-beasts.com/raspberry/images/debian/7/2013-05-29-wheezy-armel/2013-05-29-wheezy-armel.zip",
 					item, "rPI", "2013-05-29-wheezy-armel.zip");
 			downloadedFile = "2013-05-29-wheezy-armel.zip";
@@ -687,7 +633,6 @@ public class MainActivity extends Activity {
 		else {
 			showToast("No internet connection!");
 		}
-		Log.d(TAG, "Made dwld "+downloadID);
 	}
 	
 	/**
@@ -699,38 +644,47 @@ public class MainActivity extends Activity {
 	public long downloadAngstrom() throws Exception {
 		if(isNetworkConnected())
 			try {
-			URL input = new URL("http://beagleboard.org/latest-images");
-			URLConnection conn = input.openConnection();
-			int contentLength = conn.getContentLength();
-			DataInputStream stream = new DataInputStream(input.openStream());
-			byte[] buffer = new byte[contentLength];
-			stream.readFully(buffer);
-			stream.close();
-			DataOutputStream output = new DataOutputStream(new FileOutputStream(Environment.getExternalStorageDirectory() + "/BBB/page.html"));
-			output.write(buffer);
-			output.flush();
-			output.close();
-			File fl = new File(Environment.getExternalStorageDirectory() + "/BBB/page.html");
-		    FileInputStream fin = new FileInputStream(fl);
-		    StringBuffer fileContent = new StringBuffer("");
-		    byte[] buff = new byte[12288];
-
-		    while (fin.read(buff) != -1) {
-		        fileContent.append(new String(buff));
-		    }
-		    int start = fileContent.toString().indexOf("https://s3.");
-		    int end = fileContent.toString().indexOf(".img.xz");
-		    Log.d(TAG, "Angstrom-BBB");
-		    fin.close();        
-		    String filename = fileContent.toString().substring(start, end+7);
-		    downloadedFile = "flash.img.xz";
-		    return downloadFile(fileContent.toString().substring(start, end+7),
-		    		"Angstrom", filename, "flash.img.xz");
-		    } catch(FileNotFoundException e) {
-			
-			} catch (IOException e) {
-				Log.d(TAG, e.getMessage());
-			}
+				URL input = new URL("http://beagleboard.org/latest-images");
+				URLConnection conn = input.openConnection();
+				int contentLength = conn.getContentLength();
+				byte[] buffer = new byte[contentLength];
+				DataInputStream stream = new DataInputStream(input.openStream());
+				
+				stream.readFully(buffer);
+				stream.close();
+				
+				DataOutputStream output = new DataOutputStream(new FileOutputStream(Environment.getExternalStorageDirectory() + "/BBB/page.html"));
+				output.write(buffer);
+				output.flush();
+				output.close();
+				
+				File fl = new File(Environment.getExternalStorageDirectory() + "/BBB/page.html");
+			    FileInputStream fin = new FileInputStream(fl);
+			    StringBuffer fileContent = new StringBuffer("");
+			    File checkExist = new File(Environment.getExternalStorageDirectory() + "/BBB/Angstrom.img.xz");
+			    if(checkExist.exists()) checkExist.delete();
+			    
+			    byte[] buff = new byte[fin.available()];
+			    while (fin.read(buff) != -1) {
+			        fileContent.append(new String(buff));
+			    }
+			    
+			    int start = fileContent.toString().indexOf("https://s3.");
+			    int end = fileContent.toString().indexOf(".img.xz");
+			    
+			    fin.close();        
+			    String filename = fileContent.toString().substring(start, end+7);
+			    downloadedFile = "Angstrom.img.xz";
+			    
+			    fl.delete();
+			    
+			    return downloadFile(fileContent.toString().substring(start, end+7),
+			    		"Angstrom", filename, "Angstrom.img.xz");
+			    } catch(FileNotFoundException e) {
+				
+				} catch (IOException e) {
+					Log.d(TAG, e.getMessage());
+					}
 		else {
 			showToast("No internet connection!");
 		}
@@ -745,7 +699,12 @@ public class MainActivity extends Activity {
 		};
 	
 	/**
-	 * Checks if there are any running downloads at the moment. Does not let you to download multiple images at the same time.
+	 * Checks if there are any running downloads at the moment. Does not let you to download multiple images at th
+	static final int RNDISSize = 44;
+	static final int ETHSize = 14;
+	static final int IPSize = 20;
+	static final int ARPSize = 28;
+	static final int UDPSize = 8;e same time.
 	 */
 	private void checkRunningDownloads() {
 		DownloadManager downloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
@@ -846,9 +805,9 @@ public class MainActivity extends Activity {
 		Spinner spinner1 = (Spinner) findViewById(R.id.spinner1);
 		String spinnerSelected = (String)spinner1.getSelectedItem();
 		if(spinnerSelected.compareTo("BBB-Angstrom") == 0) {
-			File file = new File(Environment.getExternalStorageDirectory().getPath(), "/BBB/flash.img.xz" );
+			File file = new File(Environment.getExternalStorageDirectory().getPath(), "/BBB/Angstrom.img.xz" );
 			if(file.exists())
-				downloadedFile = "flash.img.xz";
+				downloadedFile = "Angstrom.img.xz";
 			else {
 				showToast("Please download the BBB-Angstrom image!");
 				return false;
@@ -863,7 +822,7 @@ public class MainActivity extends Activity {
 				return false;
 			}
 		}
-		else if(spinnerSelected.compareTo("rPI-Raspbian ÒwheezyÓ") == 0){
+		else if(spinnerSelected.compareTo("rPI-Raspbian 'wheezy'") == 0){
 			File file = new File(Environment.getExternalStorageDirectory().getPath(), "/BBB/2013-07-26-wheezy-raspbian.zip" );
 			if(file.exists())
 				downloadedFile = "2013-07-26-wheezy-raspbian.zip";
@@ -926,6 +885,7 @@ public class MainActivity extends Activity {
 				return false;
 			}
 		}		
+		else if(spinnerSelected.compareTo("Local File") == 0) return true;
 		return true;
 	}
 	
@@ -961,7 +921,8 @@ public class MainActivity extends Activity {
 		HashMap<String, UsbDevice> deviceList = manager.getDeviceList();
 		Iterator<UsbDevice> deviceIterator = deviceList.values().iterator();
 		boolean found = false;
-		
+		Time start = new Time();
+        start.setToNow();
 		while(found == false) {
 			deviceList = manager.getDeviceList();
 			deviceIterator = deviceList.values().iterator();
@@ -972,6 +933,13 @@ public class MainActivity extends Activity {
 					found = true;
 				}
 			}
+			Time end = new Time();
+            end.setToNow();
+            long diff = TimeUnit.MILLISECONDS.toSeconds(end.toMillis(true)-start.toMillis(true));
+            if(diff >= 30) {
+            	myDev = null;
+            	found = true;
+            }
 		}
 		if (myDev == null) {
 			Log.d(TAG, "MLO did not started correctly and it`s not found in the device list!");
@@ -994,6 +962,106 @@ public class MainActivity extends Activity {
 		});
 	}
 	
+    OnItemSelectedListener spinnerListener = new OnItemSelectedListener() {
+        @Override
+        public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+        	Button downloader = (Button) findViewById(R.id.button3);
+    		if (parentView.getItemAtPosition(position).toString().compareTo("Local File") == 0) {
+        		downloader.setEnabled(false);
+        		FileChooserDialog dialog = new FileChooserDialog(parentView.getContext());
+        		dialog.setFilter(".*zip|.*tar.gz|.*tar|.*img.tar.gz|.*img.xz|.*img|.*img.zip");
+                dialog.loadFolder(Environment.getExternalStorageDirectory() + "/BBB/");
+                dialog.addListener(new FileChooserDialog.OnFileSelectedListener() {
+                    public void onFileSelected(Dialog source, File file) {
+                        source.hide();
+                        downloadedFile = file.getName();
+                		Spinner spinner1 = (Spinner) findViewById(R.id.spinner1);
+                		spinner1.setSelection(spinner1.getCount()-1);
+                        Toast toast = Toast.makeText(source.getContext(), "Image selected: " + file.getName(), Toast.LENGTH_LONG);
+                        toast.show();
+                    }
+                    public void onFileSelected(Dialog source, File folder, String name) {
+                        source.hide();
+                    }
+                });
+                dialog.show();
+        	}
+        	else{
+        		downloader.setEnabled(true);
+        	}
+        }
+        @Override
+        public void onNothingSelected(AdapterView<?> parentView) {
+        	Log.d(TAG, "DID NOT SELECT");
+        }
+
+    };
+	
+    OnClickListener flashListener = new OnClickListener() {
+		public void onClick(View v) {
+			new Thread(new Runnable() {
+				public void run() {
+					if (checkImage() == false) return;
+					UsbManager manager = (UsbManager) getSystemService(Context.USB_SERVICE);
+					
+					UsbDevice myDev = checkUsbDevice(1105, 24897, "Please connect the BeagleBone Black in USB boot mode!", manager);
+					if (myDev == null) {
+						Log.d(TAG, "AM335x not in USB Boot mode!");
+						return;
+					}
+					while (!manager.hasPermission(myDev)){}
+					
+					runRom(myDev);
+					showToast("MLO started!");
+					
+					myDev = checkUsbDevice(1317, 42146, "U-Boot SPL did not started correctly!", manager);
+					if (myDev == null) {
+						Log.d(TAG, "MLO error!");
+						return;
+					}
+					while (!manager.hasPermission(myDev)){}
+					
+					runUBoot(myDev);
+					showToast("U-Boot started");
+					myDev = checkUsbDevice(1317, 42149, "U-Boot did not started corectly!", manager);
+					if(myDev == null) {
+						Log.d(TAG, "U-boot error");
+						return ;
+					}
+					runFIT(myDev);
+					
+					showToast("Booting kernel!");
+					myDev = checkUsbDevice(1317, 42151, "The kenernel did not started corectly!", manager);
+					if(myDev == null) {
+						Log.d(TAG, "Kernel error");
+						return ;
+					}
+					while (!manager.hasPermission(myDev)){}
+					
+					showToast("Starting to send image to the board!");
+					SystemClock.sleep(1500);
+					
+					runWrite(downloadedFile, myDev);
+				}
+			}).start();
+		}
+	};
+    
+	OnClickListener downloadListener = new OnClickListener() {		
+		public void onClick(View v) {
+			new Thread(new Runnable() {
+				public void run() {
+					try {
+						Spinner selection = (Spinner) findViewById(R.id.spinner1);
+						downloadImage(selection.getSelectedItem().toString());
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+			}).start();
+		}
+	};
+	
 	/**
 	 * @return ArrayAdapter<String> Values for the spinner
 	 */
@@ -1008,6 +1076,7 @@ public class MainActivity extends Activity {
     	list.add("rPI-Pidora");
     	list.add("rPI-Arch Linux ARM");
     	list.add("rPI-RISC OS");
+    	list.add("Local File");
     	ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this,
     		android.R.layout.simple_spinner_item, list);
     	dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -1049,4 +1118,5 @@ public class MainActivity extends Activity {
 	            }
             }
         }
+
 	}
