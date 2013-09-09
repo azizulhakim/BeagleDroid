@@ -916,7 +916,7 @@ public class MainActivity extends Activity {
 	 * @param manager UsbManager System-Wide USB Manager
 	 * @return UsbDevice the attached device which has the vID/pID specified
 	 */
-	private UsbDevice checkUsbDevice(int vID, int pID, String failMessage, UsbManager manager) {
+	private UsbDevice checkUsbDevice(int vID, int pID, String failMessage, UsbManager manager, long diffToCheckTo) {
 		UsbDevice myDev = null;
 		HashMap<String, UsbDevice> deviceList = manager.getDeviceList();
 		Iterator<UsbDevice> deviceIterator = deviceList.values().iterator();
@@ -936,7 +936,7 @@ public class MainActivity extends Activity {
 			Time end = new Time();
             end.setToNow();
             long diff = TimeUnit.MILLISECONDS.toSeconds(end.toMillis(true)-start.toMillis(true));
-            if(diff >= 30) {
+            if(diff >= diffToCheckTo) {
             	myDev = null;
             	found = true;
             }
@@ -1004,7 +1004,7 @@ public class MainActivity extends Activity {
 					if (checkImage() == false) return;
 					UsbManager manager = (UsbManager) getSystemService(Context.USB_SERVICE);
 					
-					UsbDevice myDev = checkUsbDevice(1105, 24897, "Please connect the BeagleBone Black in USB boot mode!", manager);
+					UsbDevice myDev = checkUsbDevice(1105, 24897, "Please connect the BeagleBone Black in USB boot mode!", manager, 0);
 					if (myDev == null) {
 						Log.d(TAG, "AM335x not in USB Boot mode!");
 						return;
@@ -1014,7 +1014,7 @@ public class MainActivity extends Activity {
 					runRom(myDev);
 					showToast("MLO started!");
 					
-					myDev = checkUsbDevice(1317, 42146, "U-Boot SPL did not started correctly!", manager);
+					myDev = checkUsbDevice(1317, 42146, "U-Boot SPL did not started correctly!", manager, 5);
 					if (myDev == null) {
 						Log.d(TAG, "MLO error!");
 						return;
@@ -1023,7 +1023,7 @@ public class MainActivity extends Activity {
 					
 					runUBoot(myDev);
 					showToast("U-Boot started");
-					myDev = checkUsbDevice(1317, 42149, "U-Boot did not started corectly!", manager);
+					myDev = checkUsbDevice(1317, 42149, "U-Boot did not started corectly!", manager, 10);
 					if(myDev == null) {
 						Log.d(TAG, "U-boot error");
 						return ;
@@ -1031,7 +1031,7 @@ public class MainActivity extends Activity {
 					runFIT(myDev);
 					
 					showToast("Booting kernel!");
-					myDev = checkUsbDevice(1317, 42151, "The kenernel did not started corectly!", manager);
+					myDev = checkUsbDevice(1317, 42151, "The kenernel did not started corectly!", manager, 30);
 					if(myDev == null) {
 						Log.d(TAG, "Kernel error");
 						return ;
