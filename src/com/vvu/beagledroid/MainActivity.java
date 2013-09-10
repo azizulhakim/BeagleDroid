@@ -443,7 +443,12 @@ public class MainActivity extends Activity {
 				int tmp;
 				try {
 					CheckBox sdCard = (CheckBox)findViewById(R.id.checkBox1);
-					if (sdCard.isChecked()) {
+					if(downloadedFile == "Angstrom-eMMC.img.xz"){
+						byte makeSD[] = {(byte)'n', (byte)'s', (byte)'d'};
+						tmp = -1;
+						while(tmp<0) tmp = connection.bulkTransfer(writeEP, makeSD, makeSD.length, 10);
+					}
+					else if (sdCard.isChecked()) {
 						byte makeSD[] = {(byte)'y',(byte)'s', (byte)'d'};
 						tmp = -1;
 						while(tmp<0) tmp = connection.bulkTransfer(writeEP, makeSD, makeSD.length, 10);
@@ -510,6 +515,7 @@ public class MainActivity extends Activity {
 	 * @return long ID of the download
 	 */
 	public long downloadFile(String url, String title, String description, String fileName) {
+		Log.d(TAG, url);
 		DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
 		request.setDescription(description);
 		request.setTitle(title);
@@ -518,7 +524,12 @@ public class MainActivity extends Activity {
 		}
 		request.setDestinationInExternalPublicDir("BBB/", fileName);
 		DownloadManager manager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
-		return manager.enqueue(request);
+		try {
+			return manager.enqueue(request);
+		} catch (Exception e) {
+			Log.d(TAG, e.getMessage());
+			return -1;
+		}
 	}
 	
 	/**
@@ -616,8 +627,11 @@ public class MainActivity extends Activity {
 					item, "rPI", "riscos-2013-07-10-RC11.zip");
 			downloadedFile = "riscos-2013-07-10-RC11.zip";
 			}
-		else if (item.equals("BBB-Angstrom")) {
-			downloadID = downloadAngstrom();
+		else if (item.equals("BBB-Angstrom uSD")) {
+			downloadID = downloadAngstrom_uSD();
+		}
+		else if (item.equals("BBB-Angstrom eMMC")) {
+			downloadID = downloadAgnstrom_eMMC();
 		}
 		else if (item.equals("Ubuntu Raring 13.04")) {
 			Log.d(TAG, "Ubuntu Raring 13.04");
@@ -636,12 +650,12 @@ public class MainActivity extends Activity {
 	}
 	
 	/**
-	 * Downloads the latest Angstrom image for the BBB/BBW
+	 * Downloads the latest Angstrom uSD image for the BBB/BBW
 	 * 
 	 * @return long the ID of the download
 	 * @throws Exception
 	 */
-	public long downloadAngstrom() throws Exception {
+	public long downloadAngstrom_uSD() throws Exception {
 		if(isNetworkConnected())
 			try {
 				URL input = new URL("http://beagleboard.org/latest-images");
@@ -661,7 +675,7 @@ public class MainActivity extends Activity {
 				File fl = new File(Environment.getExternalStorageDirectory() + "/BBB/page.html");
 			    FileInputStream fin = new FileInputStream(fl);
 			    StringBuffer fileContent = new StringBuffer("");
-			    File checkExist = new File(Environment.getExternalStorageDirectory() + "/BBB/Angstrom.img.xz");
+			    File checkExist = new File(Environment.getExternalStorageDirectory() + "/BBB/Angstrom uSD.img.xz");
 			    if(checkExist.exists()) checkExist.delete();
 			    
 			    byte[] buff = new byte[fin.available()];
@@ -674,12 +688,46 @@ public class MainActivity extends Activity {
 			    
 			    fin.close();        
 			    String filename = fileContent.toString().substring(start, end+7);
-			    downloadedFile = "Angstrom.img.xz";
+			    downloadedFile = "Angstrom uSD.img.xz";
 			    
 			    fl.delete();
 			    
 			    return downloadFile(fileContent.toString().substring(start, end+7),
-			    		"Angstrom", filename, "Angstrom.img.xz");
+			    		"Angstrom uSD", filename, "Angstrom uSD.img.xz");
+			    } catch(FileNotFoundException e) {
+				
+				} catch (IOException e) {
+					Log.d(TAG, e.getMessage());
+					}
+		else {
+			showToast("No internet connection!");
+		}
+		return -1;
+	}
+	
+	/**
+	 * Downloads the latest Angstrom uSD image for the BBB/BBW
+	 * 
+	 * @return long the ID of the download
+	 * @throws Exception
+	 */
+	public long downloadAgnstrom_eMMC() throws Exception {
+		if(isNetworkConnected())
+			try {
+				URL input = new URL("http://downloads.angstrom-distribution.org/demo/beaglebone/latest-emmc-image.txt");
+				URLConnection conn = input.openConnection();
+				int contentLength = conn.getContentLength();
+				byte[] buffer = new byte[contentLength];
+				DataInputStream stream = new DataInputStream(input.openStream());
+				
+				stream.readFully(buffer);
+				stream.close();
+				String fileUrl = new String(buffer);
+				File checkExist = new File(Environment.getExternalStorageDirectory() + "/BBB/Angstrom-eMMC.img.xz");
+			    if(checkExist.exists()) checkExist.delete();
+			    downloadedFile = "Angstrom-eMMC.img.xz";
+			    return downloadFile(fileUrl,
+			    		"Angstrom eMMC", "Angstrom eMMC image", "Angstrom-eMMC.img.xz");
 			    } catch(FileNotFoundException e) {
 				
 				} catch (IOException e) {
@@ -772,7 +820,7 @@ public class MainActivity extends Activity {
 			    failedReason = "ERROR_UNHANDLED_HTTP_CODE";
 			    break;
 			   case DownloadManager.ERROR_UNKNOWN:
-			    failedReason = "ERROR_UNKNOWN";
+			    failedReason = "ERROR_UNKNOWN " + DownloadManager.ERROR_UNKNOWN;
 			    break;
 			   }
 
@@ -804,12 +852,21 @@ public class MainActivity extends Activity {
 	private boolean checkImage() {
 		Spinner spinner1 = (Spinner) findViewById(R.id.spinner1);
 		String spinnerSelected = (String)spinner1.getSelectedItem();
-		if(spinnerSelected.compareTo("BBB-Angstrom") == 0) {
-			File file = new File(Environment.getExternalStorageDirectory().getPath(), "/BBB/Angstrom.img.xz" );
+		if(spinnerSelected.compareTo("BBB-Angstrom uSD") == 0) {
+			File file = new File(Environment.getExternalStorageDirectory().getPath(), "/BBB/Angstrom uSD.img.xz" );
 			if(file.exists())
-				downloadedFile = "Angstrom.img.xz";
+				downloadedFile = "Angstrom uSD.img.xz";
 			else {
-				showToast("Please download the BBB-Angstrom image!");
+				showToast("Please download the BBB-Angstrom uSD image!");
+				return false;
+			}
+		}
+		else if(spinnerSelected.compareTo("BBB-Angstrom eMMC") == 0){
+			File file = new File(Environment.getExternalStorageDirectory().getPath(), "/BBB/Angstrom-eMMC.img.xz" );
+			if(file.exists())
+				downloadedFile = "Angstrom-eMMC.img.xz";
+			else {
+				showToast("Please download the Angstrom eMMC image!");
 				return false;
 			}
 		}
@@ -1067,7 +1124,8 @@ public class MainActivity extends Activity {
 	 */
 	ArrayAdapter<String> setupSpinner() {
 		List<String> list = new ArrayList<String>();
-		list.add("BBB-Angstrom");
+		list.add("BBB-Angstrom eMMC");
+		list.add("BBB-Angstrom uSD");
 		list.add("Ubuntu Precise 12.04.2 LTS");
 		list.add("Ubuntu Raring 13.04");
     	list.add("rPI-NOOBS_v1_2");
