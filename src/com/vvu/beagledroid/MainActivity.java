@@ -1004,7 +1004,7 @@ public class MainActivity extends Activity {
 					if (checkImage() == false) return;
 					UsbManager manager = (UsbManager) getSystemService(Context.USB_SERVICE);
 					
-					UsbDevice myDev = checkUsbDevice(1105, 24897, "Please connect the BeagleBone Black in USB boot mode!", manager, 0);
+					UsbDevice myDev = checkUsbDevice(1105, 24897, "Please connect the BeagleBone Black in USB boot mode!", manager, 5);
 					if (myDev == null) {
 						Log.d(TAG, "AM335x not in USB Boot mode!");
 						return;
