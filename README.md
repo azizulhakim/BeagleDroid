@@ -17,7 +17,7 @@ After your device is running the kernel that meets the requirements install the 
 
 -power up BBB/BBW in USB Boot mode *while having inserted a blank or a non working uSD in the BBB press the user button(the one near the uSD slot) and power on the BBB. this procedure can be made without a uSD inserted in the slot*
 
--connect to the Android device
+-connect the board to the Android device
 
 -click Flash
 
