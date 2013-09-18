@@ -675,7 +675,7 @@ public class MainActivity extends Activity {
 				File fl = new File(Environment.getExternalStorageDirectory() + "/BBB/page.html");
 			    FileInputStream fin = new FileInputStream(fl);
 			    StringBuffer fileContent = new StringBuffer("");
-			    File checkExist = new File(Environment.getExternalStorageDirectory() + "/BBB/Angstrom uSD.img.xz");
+			    File checkExist = new File(Environment.getExternalStorageDirectory() + "/BBB/Angstrom_uSD.img.xz");
 			    if(checkExist.exists()) checkExist.delete();
 			    
 			    byte[] buff = new byte[fin.available()];
@@ -688,12 +688,12 @@ public class MainActivity extends Activity {
 			    
 			    fin.close();        
 			    String filename = fileContent.toString().substring(start, end+7);
-			    downloadedFile = "Angstrom uSD.img.xz";
+			    downloadedFile = "Angstrom_uSD.img.xz";
 			    
 			    fl.delete();
 			    
 			    return downloadFile(fileContent.toString().substring(start, end+7),
-			    		"Angstrom uSD", filename, "Angstrom uSD.img.xz");
+			    		"Angstrom_uSD", filename, "Angstrom_uSD.img.xz");
 			    } catch(FileNotFoundException e) {
 				
 				} catch (IOException e) {
@@ -853,9 +853,9 @@ public class MainActivity extends Activity {
 		Spinner spinner1 = (Spinner) findViewById(R.id.spinner1);
 		String spinnerSelected = (String)spinner1.getSelectedItem();
 		if(spinnerSelected.compareTo("BBB-Angstrom uSD") == 0) {
-			File file = new File(Environment.getExternalStorageDirectory().getPath(), "/BBB/Angstrom uSD.img.xz" );
+			File file = new File(Environment.getExternalStorageDirectory().getPath(), "/BBB/Angstrom_uSD.img.xz" );
 			if(file.exists())
-				downloadedFile = "Angstrom uSD.img.xz";
+				downloadedFile = "Angstrom_uSD.img.xz";
 			else {
 				showToast("Please download the BBB-Angstrom uSD image!");
 				return false;
